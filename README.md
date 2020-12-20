@@ -1,4 +1,4 @@
-Discord-MusicBot
+# Discord-MusicBot
 
 Help command
 
