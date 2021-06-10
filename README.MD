@@ -9,3 +9,7 @@ previous help command
 new help command
 
 ![New help command](https://i.imgur.com/WycPOwy.png)
+
+even newer help command
+
+![New help command 2](https://i.imgur.com/ZN5Ppnf.png)
