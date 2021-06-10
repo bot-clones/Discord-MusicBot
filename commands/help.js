@@ -2,7 +2,7 @@ const { MessageEmbed } = require("discord.js");
 
 module.exports = {
   name: "help",
-  description: "To know about the bot and commands",
+  description: "Information about the bot",
   usage: "[command]",
   permissions: {
     channel: ["VIEW_CHANNEL", "SEND_MESSAGES", "EMBED_LINKS"],
@@ -25,25 +25,28 @@ module.exports = {
     );
 
     let Embed = new MessageEmbed()
-      .setAuthor(`Commands of ${client.user.username}`, client.config.IconURL)
-      .setColor("RANDOM")
-      .setTitle(
-        `To get info of each command type ${
-          GuildDB ? GuildDB.prefix : client.config.DefaultPrefix
-        }help [Command]`
-      ).setDescription(`${Commands.join("\n")}
-
-Discord Music Bot Version: v${require("../package.json").version}
-[✨ Support Server](${
-      client.config.SupportServer
-    }) | [GitHub](https://github.com/SudhanPlayz/Discord-MusicBot) | By [SudhanPlayz](https://github.com/SudhanPlayz) and its [contributers](https://github.com/SudhanPlayz/Discord-MusicBot/graphs/contributors)`);
+            .setAuthor(
+              `Commands of ${client.user.username}`,
+              client.config.IconURL
+            )
+            .setColor("RANDOM")
+            .setFooter(
+              `To get info of each command type ${
+                GuildDB ? GuildDB.prefix : client.config.DefaultPrefix
+              }help [Command] | Have a nice day!`
+            ).setDescription(`${Commands.join("\n")}
+  
+  Discord Music Bot Version: v${require("../package.json").version}
+  [✨ Support Server](${
+    client.config.SupportServer
+  }) | [GitHub](https://github.com/SudhanPlayz/Discord-MusicBot) | By [SudhanPlayz](https://github.com/SudhanPlayz)`);
     if (!args[0]) message.channel.send(Embed);
     else {
       let cmd =
         client.commands.get(args[0]) ||
         client.commands.find((x) => x.aliases && x.aliases.includes(args[0]));
       if (!cmd)
-        return client.sendError(message.channel, "Unable to find that command");
+        return client.sendTime(message.channel, `❌ | Unable to find that command.`);
 
       let embed = new MessageEmbed()
         .setAuthor(`Command: ${cmd.name}`, client.config.IconURL)
@@ -80,11 +83,19 @@ SlashCommand: {
     options: [
       {
         name: "command",
-        description: "Command help",
+        description: "Get information on a specific command",
         value: "command",
         type: 3,
-        required: false,
-        options: [],
+        required: false
+      },
+    ],
+    /**
+   *
+   * @param {import("../structures/DiscordMusicBot")} client
+   * @param {import("discord.js").Message} message
+   * @param {string[]} args
+   * @param {*} param3
+   */
 
     run: async (client, interaction, args, { GuildDB }) => {
       let Commands = client.commands.map(
@@ -95,25 +106,28 @@ SlashCommand: {
       );
   
       let Embed = new MessageEmbed()
-        .setAuthor(`Commands of ${client.user.username}`, client.config.IconURL)
-        .setColor("RANDOM")
-        .setFooter(
-          `To get info of each command type ${
-            GuildDB ? GuildDB.prefix : client.config.DefaultPrefix
-          }help [Command] | Have a nice day!`
-        ).setDescription(`${Commands.join("\n")}
+            .setAuthor(
+              `Commands of ${client.user.username}`,
+              client.config.IconURL
+            )
+            .setColor("RANDOM")
+            .setFooter(
+              `To get info of each command type ${
+                GuildDB ? GuildDB.prefix : client.config.DefaultPrefix
+              }help [Command] | Have a nice day!`
+            ).setDescription(`${Commands.join("\n")}
   
   Discord Music Bot Version: v${require("../package.json").version}
   [✨ Support Server](${
-        client.config.SupportServer
-      }) | [GitHub](https://github.com/SudhanPlayz/Discord-MusicBot) | By [SudhanPlayz](https://github.com/SudhanPlayz)`);
-      if (!args[0]) interaction.send(Embed);
+    client.config.SupportServer
+  }) | [GitHub](https://github.com/SudhanPlayz/Discord-MusicBot) | By [SudhanPlayz](https://github.com/SudhanPlayz)`);
+      if (!args) return interaction.send(Embed);
       else {
         let cmd =
-          client.commands.get(args[0]) ||
-          client.commands.find((x) => x.aliases && x.aliases.includes(args[0]));
+          client.commands.get(args[0].value) ||
+          client.commands.find((x) => x.aliases && x.aliases.includes(args[0].value));
         if (!cmd)
-          return client.sendError(interaction, "Unable to find that command");
+          return client.sendTime(interaction, `❌ | Unable to find that command.`);
   
         let embed = new MessageEmbed()
           .setAuthor(`Command: ${cmd.name}`, client.config.IconURL)
@@ -144,6 +158,5 @@ SlashCommand: {
   
         interaction.send(embed);
       }
-  }},
-],
+  },
 }};

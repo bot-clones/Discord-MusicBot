@@ -2,7 +2,7 @@ const { MessageEmbed, MessageReaction } = require("discord.js");
 
 module.exports = {
   name: "config",
-  description: "To setup server settings",
+  description: "Edit the bot settings",
   usage: "",
   permissions: {
     channel: ["VIEW_CHANNEL", "SEND_MESSAGES", "EMBED_LINKS"],
@@ -39,28 +39,29 @@ What would you like to edit?
       { max: 1, errors: ["time"], time: 30000 }
     ).catch(() => {
       ConfigMessage.reactions.removeAll();
-      Config.setDescription(
-        "You took too long to respond. Run the command again to edit the settings."
+      client.sendTime(
+        message.channel, "❌ | **You took too long to respond. If you want to edit the settings, run the command again!**"
       );
-      ConfigMessage.edit(Config);
+      ConfigMessage.delete(Config);
     });
     let isOk = false;
-    try{
+    try {
       emoji = emoji.first();
-    }catch{
+    } catch {
       isOk = true;
     }
-    if(isOk)return//im idiot sry ;-;
+    if (isOk) return; //im idiot sry ;-;
     /**@type {MessageReaction} */
     let em = emoji;
     ConfigMessage.reactions.removeAll();
     if (em._emoji.name === "1️⃣") {
-      await message.channel.send("What do you want to change it to?");
+      await client.sendTime(message.channel, "What do you want to change the prefix to?");
       let prefix = await message.channel.awaitMessages(
         (msg) => msg.author.id === message.author.id,
         { max: 1, time: 30000, errors: ["time"] }
       );
-      if (!prefix.first()) return message.channel.send("You took too long to respond.");
+      if (!prefix.first())
+        return client.sendTime(message.channel, "You took too long to respond.");
       prefix = prefix.first();
       prefix = prefix.content;
 
@@ -69,19 +70,24 @@ What would you like to edit?
         DJ: GuildDB.DJ,
       });
 
-      message.channel.send(
-        "Successfully saved guild prefix as `" + prefix + "`"
+      client.sendTime(
+        message.channel, `Successfully saved guild prefix as \`${prefix}\``
       );
     } else {
-      await message.channel.send("Please mention the role you want `DJ's` to have.");
+      await client.sendTime(
+        message.channel, "Please mention the role you want `DJ's` to have."
+      );
       let role = await message.channel.awaitMessages(
         (msg) => msg.author.id === message.author.id,
         { max: 1, time: 30000, errors: ["time"] }
       );
-      if (!role.first()) return message.channel.send("You took too long to respond.");
+      if (!role.first())
+        return client.sendTime(message.channel, "You took too long to respond.");
       role = role.first();
       if (!role.mentions.roles.first())
-        return message.channel.send("Please mention the role that you want for DJ's only.");
+        return client.sendTime(
+          message.channel, "Please mention the role that you want for DJ's only."
+        );
       role = role.mentions.roles.first();
 
       await client.database.guild.set(message.guild.id, {
@@ -89,8 +95,8 @@ What would you like to edit?
         DJ: role.id,
       });
 
-      message.channel.send(
-        "Successfully saved guild prefix as <@&" + role.id + ">"
+      client.sendTime(
+        message.channel, "Successfully saved guild prefix as <@&" + role.id + ">"
       );
     }
   },
@@ -98,7 +104,7 @@ What would you like to edit?
   SlashCommand: {
     options: [
       {
-        name: "Prefix",
+        name: "prefix",
         description: "Check the bot's prefix",
         type: 1,
         required: false,
@@ -107,12 +113,12 @@ What would you like to edit?
             name: "symbol",
             description: "Set the bot's prefix",
             type: 3,
-            required: true,
-          }
-        ]
+            required: false,
+          },
+        ],
       },
       {
-        name: "DJRole",
+        name: "dj",
         description: "Check the DJ role",
         type: 1,
         required: false,
@@ -121,47 +127,63 @@ What would you like to edit?
             name: "role",
             description: "Set the DJ role",
             type: 8,
-            required: true
-          }
-        ]
-      }
+            required: false,
+          },
+        ],
+      },
     ],
-    
+    /**
+       *
+       * @param {import("../structures/DiscordMusicBot")} client
+       * @param {import("discord.js").Message} message
+       * @param {string[]} args
+       * @param {*} param3
+       */
     run: async (client, interaction, args, { GuildDB }) => {
-      let config = interaction.data.options[0].name
-      let member = await interaction.guild.members.fetch(interaction.user_id)
+      let config = interaction.data.options[0].name;
+      let member = await interaction.guild.members.fetch(interaction.user_id);
       //TODO: if no admin perms return...
-      if(config === "prefix"){
+      if (config === "prefix") {
         //prefix stuff
-        if(interaction.data.options[0].options && interaction.data.options[0].options[0]){
+        if (
+          interaction.data.options[0].options &&
+          interaction.data.options[0].options[0]
+        ) {
           //has prefix
-          let prefix = interaction.data.options[0].options[0].value
+          let prefix = interaction.data.options[0].options[0].value;
           await client.database.guild.set(interaction.guild.id, {
             prefix: prefix,
             DJ: GuildDB.DJ,
           });
-          interaction.send(`The prefix has now been set to \`${prefix}\``)
-        }else{
+          client.sendTime(interaction, `The prefix has now been set to \`${prefix}\``);
+        } else {
           //has not prefix
-          interaction.send(`Prefix of the server is \`${GuildDB.prefix}\``)
+          client.sendTime(interaction, `The prefix of this server is \`${GuildDB.prefix}\``);
         }
-      }else if(config === "djrole"){
+      } else if (config === "djrole") {
         //DJ role
-        if(interaction.data.options[0].options && interaction.data.options[0].options[0]){
-          let role = interaction.guild.roles.cache.get(interaction.data.options[0].options[0].value)
+        if (
+          interaction.data.options[0].options &&
+          interaction.data.options[0].options[0]
+        ) {
+          let role = interaction.guild.roles.cache.get(
+            interaction.data.options[0].options[0].value
+          );
           await client.database.guild.set(interaction.guild.id, {
             prefix: GuildDB.prefix,
             DJ: role.id,
           });
-          interaction.send(`Successfully changed DJ role of this server to ${role.name}`)
-        }else{
+          client.sendTime(
+            interaction, `Successfully changed the DJ role of this server to ${role.name}`
+          );
+        } else {
           /**
            * @type {require("discord.js").Role}
            */
-          let role = interaction.guild.roles.cache.get(GuildDB.DJ)
-          interaction.send(`DJ Role of the server is ${role.name}`)
+          let role = interaction.guild.roles.cache.get(GuildDB.DJ);
+          client.sendTime(interaction, `The DJ role of this server is ${role.name}`);
         }
       }
-    }
-  }
+    },
+  },
 };
