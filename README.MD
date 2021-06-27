@@ -15,6 +15,7 @@ even newer help command
 ![New help command 2](https://i.imgur.com/ZN5Ppnf.png)
 
 Repo is updated again;
+
 ![Help Command](https://i.imgur.com/ljB6KSe.png)
 
 Also supports slash command right now.
